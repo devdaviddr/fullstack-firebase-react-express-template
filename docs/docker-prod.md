@@ -30,7 +30,7 @@ Each package has a `Dockerfile.prod` that uses multi-stage builds to produce lea
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- A populated root `.env` file (see [Environment Variables](#environment-variables) below)
+- A populated root `.env` file (copy `./.env.example` then edit, see [Environment Variables](#environment-variables) below)
 - `VITE_API_URL` set to the publicly accessible server URL before building
 
 ---
@@ -142,6 +142,16 @@ The client image ships with a custom `nginx.conf` (`packages/client/nginx.conf`)
   (`http://server:3001`). This keeps the frontend and API on the same origin from the browser's
   perspective and eliminates CORS concerns.
 - Routes all other (non-API) routes to `index.html` so React Router handles client-side navigation
+
+### Healthcheck
+
+The server service includes a Docker `healthcheck` that performs a
+simple `curl -f http://localhost:3001/api/health`. If the endpoint
+fails to return HTTP 200 the container will be marked as unhealthy and
+can be restarted by orchestrators or `docker compose up`.
+
+You can customize the interval/timeout in `docker-compose.prod.yml` or
+remove the section if you don’t need it.
 
 ---
 

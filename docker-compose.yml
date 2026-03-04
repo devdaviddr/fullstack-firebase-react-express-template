@@ -33,6 +33,11 @@ services:
     environment:
       - PORT=${SERVER_PORT}
     command: npm run dev
+    healthcheck:
+      test: ["CMD-SHELL","curl -f http://localhost:${SERVER_PORT:-3001}/api/health || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
 
 volumes:
   client_node_modules:

@@ -20,8 +20,8 @@ Documentation files are located in the `docs/` directory and cover various aspec
 - [auth.md](docs/auth.md) – how Firebase authentication and token validation work across client and server
 - [backend-testing.md](docs/backend-testing.md) – guidance for writing and running server‑side tests
 - [client-testing.md](docs/client-testing.md) – guidance for writing and running client‑side tests
-- [docker-dev.md](docs/docker-dev.md) – running the full stack locally with Docker Compose and hot reload
-- [docker-prod.md](docs/docker-prod.md) – building and running production images with multi-stage Dockerfiles
+- [docker-dev.md](docs/docker-dev.md) – running the full stack locally with Docker Compose and hot reload (see `.env.example`)
+- [docker-prod.md](docs/docker-prod.md) – building and running production images with multi-stage Dockerfiles (includes healthcheck details)
 
 ---
 

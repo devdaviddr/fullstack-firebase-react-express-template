@@ -26,7 +26,7 @@ client (Vite)  :5173  ──proxy /api──▶  server (Express)  :3001
 ## Prerequisites
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
-- A populated root `.env` file (see [Environment Variables](#environment-variables) below)
+- A populated root `.env` file (copy `./.env.example` then edit, see [Environment Variables](#environment-variables) below)
 
 ---
 
@@ -80,7 +80,7 @@ docker compose up --build client   # or server
 
 ## Environment Variables
 
-A single `.env` at the repository root is used by both services. It is git-ignored and bind-mounted read-only into each container.
+A single `.env` at the repository root is used by both services. Use `.env.example` as a starting point; the real file is git-ignored and bind-mounted read-only into each container.
 
 ### Required
 
@@ -139,6 +139,9 @@ app-template/
 
 **Port already in use**
 Change `CLIENT_PORT` or `SERVER_PORT` in `.env` and restart.
+
+**Healthcheck failures**
+Docker will periodically curl `/api/health` on the server service. If you see restart loops, confirm the endpoint is reachable and returns 200. You can disable the check by removing the `healthcheck` section in `docker-compose.yml`.
 
 **Module not found after adding a package**
 Rebuild the affected service: `docker compose up --build client` or `server`.
