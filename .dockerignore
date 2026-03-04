@@ -1,0 +1,20 @@
+.git
+.gitignore
+.env
+*.log
+.DS_Store
+
+# Root deps
+node_modules
+
+# Package deps and build outputs
+packages/client/node_modules
+packages/client/dist
+packages/client/coverage
+
+packages/server/node_modules
+packages/server/dist
+packages/server/tests
+
+# Docker files (not needed inside images)
+docker-compose*.yml

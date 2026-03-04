@@ -1,0 +1,34 @@
+# ── Stage 1: build ──────────────────────────────────────────────────────────
+FROM node:18-alpine AS builder
+
+# Root workdir so ../../tsconfig.base.json resolves correctly
+WORKDIR /app
+COPY tsconfig.base.json ./
+
+# Install all dependencies (including dev — needed for tsc/tsx)
+WORKDIR /app/packages/server
+COPY packages/server/package.json ./
+# bring root lock into the server workspace
+COPY package-lock.json ./
+RUN npm ci
+
+# Copy source and compile
+COPY packages/server/ ./
+RUN npm run build
+
+# ── Stage 2: runtime ─────────────────────────────────────────────────────────
+FROM node:18-alpine AS runner
+
+WORKDIR /app
+
+# Production dependencies only
+COPY packages/server/package.json ./
+COPY package-lock.json ./
+RUN npm ci --omit=dev
+
+# Copy compiled output from builder
+COPY --from=builder /app/packages/server/dist ./dist
+
+EXPOSE 3001
+
+CMD ["node", "dist/src/index.js"]

@@ -20,6 +20,8 @@ Documentation files are located in the `docs/` directory and cover various aspec
 - [auth.md](docs/auth.md) – how Firebase authentication and token validation work across client and server
 - [backend-testing.md](docs/backend-testing.md) – guidance for writing and running server‑side tests
 - [client-testing.md](docs/client-testing.md) – guidance for writing and running client‑side tests
+- [docker-dev.md](docs/docker-dev.md) – running the full stack locally with Docker Compose and hot reload (see `.env.example`)
+- [docker-prod.md](docs/docker-prod.md) – building and running production images with multi-stage Dockerfiles (includes healthcheck details)
 
 ---
 
@@ -132,6 +134,36 @@ This starts both packages concurrently:
 | Server (Express) | http://localhost:3001 |
 
 Vite proxies all `/api/*` requests to the Express server, so the client never needs to hard-code the API URL.
+
+### 🐳 Docker-based development
+
+If you prefer containerized development, we provide a `docker-compose.yml` at the repo root. It builds two services (client and server) and mounts
+source code for hot reload.
+
+1. Ensure Docker is installed and running.
+2. Copy `.env.example` (or use your existing root `.env`) and adjust ports/vars as needed.
+3. From the repo root execute:
+
+```bash
+docker compose up --build
+```
+
+You can also run the containers in the background
+with `-d` and view logs with `docker compose logs -f`.
+
+The bind mounts keep your local edits in sync; there's no need
+for rebuilding when editing source files. To stop, use
+
+```bash
+docker compose down
+```
+
+Ports are mapped according to the variables in `.env` (defaults
+5173 and 3001). The client container reads `VITE_API_URL` from
+`.env` so it can target the server.
+
+> These containers are strictly for development; production
+> image definitions are not included.
 
 ---
 
