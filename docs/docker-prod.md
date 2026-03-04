@@ -43,9 +43,13 @@ From the repository root:
 docker compose -f docker-compose.prod.yml up --build
 ```
 
+By default the client is exposed on **port 80**. To use a different
+host port (e.g. 5173 for parity with development), export
+`CLIENT_PORT` in your `.env` before running.
+
 | Service | URL |
 |---|---|
-| Client (nginx) | http://localhost:80 |
+| Client (nginx) | http://localhost:${CLIENT_PORT:-80} |
 | Server (Express) | http://localhost:3001 |
 
 Run in the background:
@@ -134,7 +138,10 @@ The client image ships with a custom `nginx.conf` (`packages/client/nginx.conf`)
 
 - Serves static assets from `/usr/share/nginx/html`
 - Applies a **1-year cache** header to all JS/CSS/image assets (Vite fingerprints filenames so cache-busting is automatic)
-- Routes all unmatched paths to `index.html` so React Router handles client-side navigation
+- Proxies any request starting with `/api/` to the backend service on the internal Docker network
+  (`http://server:3001`). This keeps the frontend and API on the same origin from the browser's
+  perspective and eliminates CORS concerns.
+- Routes all other (non-API) routes to `index.html` so React Router handles client-side navigation
 
 ---
 

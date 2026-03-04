@@ -7,7 +7,9 @@ COPY tsconfig.base.json ./
 
 # Install dependencies
 WORKDIR /app/packages/client
-COPY packages/client/package.json packages/client/package-lock.json ./
+COPY packages/client/package.json ./
+# root lock file copied into package directory so npm ci works
+COPY package-lock.json ./
 RUN npm ci
 
 # Copy source and inject build-time env vars for Vite
