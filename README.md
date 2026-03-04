@@ -1,6 +1,25 @@
-# App Template
+# Fullstack Firebase React Express Template
 
-A full-stack TypeScript monorepo starter with React + Firebase Auth on the client and an Express API server that validates Firebase ID tokens on every protected route.
+![Node.js](https://img.shields.io/badge/node-%3E%3D18-green)
+![TypeScript](https://img.shields.io/badge/typescript-%3E%3D4.5-blue)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
+
+A full‑stack **TypeScript monorepo** starter built with React on the frontend and Express on the backend. Firebase Authentication (Google Sign‑In) handles users; the server validates Firebase ID tokens on every protected route.  
+
+Additional documentation lives in the `docs/` directory to explain architecture, auth flow, and testing practices for both client and server.
+
+
+
+---
+
+## Documentation
+
+Documentation files are located in the `docs/` directory and cover various aspects of the project:
+
+- [architecture.md](docs/architecture.md) – overall system architecture and design decisions
+- [auth.md](docs/auth.md) – how Firebase authentication and token validation work across client and server
+- [backend-testing.md](docs/backend-testing.md) – guidance for writing and running server‑side tests
+- [client-testing.md](docs/client-testing.md) – guidance for writing and running client‑side tests
 
 ---
 
@@ -42,7 +61,21 @@ app-template/
 
 ---
 
-## Getting Started
+## Getting Started 🚀
+
+Follow these steps to boot the project locally. All commands are executed from the repository root unless otherwise noted.
+
+### Prerequisites
+
+- Node.js **18+** (LTS)
+- npm **9+** (bundled with Node) or an equivalent package manager
+- A Firebase project with **Google Sign‑In** enabled ([Firebase Console](https://console.firebase.google.com))
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
 
 ### Prerequisites
 
@@ -102,13 +135,20 @@ Vite proxies all `/api/*` requests to the Express server, so the client never ne
 
 ---
 
-## Available Scripts
+## Scripts 🧰
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Start client + server in watch mode |
-| `npm run build` | Build both packages for production |
-| `npm run lint` | Lint all packages |
+All workspace commands are defined at the root `package.json` and are forwarded to the appropriate package(s).
+
+| Script | Description | Notes |
+|---|---|---|
+| `npm run dev` | Launch client and server concurrently in development mode | Starts Vite (5173) and Express (3001) with hot reload
+| `npm run build` | Compile both packages for production | Outputs to each package’s `dist` folder
+| `npm run lint` | Run ESLint across all packages | Configured with shared rules
+| `npm run test:client` | Execute client unit tests (Vitest) | Runs inside `packages/client`
+| `npm run test:server` | Execute server tests (Vitest) | Runs inside `packages/server`
+| `npm run clean` | Remove `node_modules` and build artifacts | Helpful when switching branches
+
+> **Tip:** use `npm run <script> --workspace=client` to run a script in a single package.
 
 ---
 
@@ -119,4 +159,4 @@ Vite proxies all `/api/*` requests to the Express server, so the client never ne
 | GET | `/api/health` | Public | Server health check |
 | GET | `/api/me` | Bearer token | Returns the authenticated user's profile |
 
-See [docs/auth.md](docs/auth.md) for how token-based auth works and [docs/architecture.md](docs/architecture.md) for a full system overview.
+See [docs/auth.md](docs/auth.md) for how token‑based auth works and [docs/architecture.md](docs/architecture.md) for a full system overview.
