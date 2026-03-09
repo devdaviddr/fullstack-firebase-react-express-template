@@ -3,3 +3,8 @@ dist/
 .env
 .DS_Store
 *.log
+
+# test coverage output
+coverage/
+packages/client/coverage
+packages/server/coverage

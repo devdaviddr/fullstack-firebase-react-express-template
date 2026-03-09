@@ -11,6 +11,7 @@ node_modules
 packages/client/node_modules
 packages/client/dist
 packages/client/coverage
+packages/server/coverage
 
 packages/server/node_modules
 packages/server/dist
