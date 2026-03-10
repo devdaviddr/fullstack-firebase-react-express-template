@@ -25,6 +25,47 @@ Documentation files are located in the `docs/` directory and cover various aspec
 - [postgres.md](docs/postgres.md) – PostgreSQL configuration and usage
 - [architecture-ascii.md](docs/architecture-ascii.md) – plain‑text diagram showing container relationships
 
+The architecture is also reproduced below for quick reference:
+
+```
+                        ┌─────────────────────────────────────────────┐
+                        │              Browser (UI)                   │
+                        │         (client + Firebase JS SDK)          │
+                        └────────────────┬────────────────────────────┘
+                                         │
+                              ID token / API calls
+                                         │
+                                         ▼
+ ┌─────────────────────────────────────────────────────────────────────────┐
+ │  Docker Host                                                            │
+ │                                                                         │
+ │  ┌─────────────────────────┐          ┌──────────────────────────────┐  │
+ │  │  [container] Client     │          │  [container] Server          │  │
+ │  │  (Vite / dev proxy)     │◀─────────│  (Express API)               │  │
+ │  │     port: 5173          │          │     port: 3001               │  │
+ │  └────────────┬────────────┘          └────────┬─────────────┬───────┘  │
+ │               │                               │             │           │
+ │        serves │                     queries   │             │ verifies  │
+ │           HTML/JS                             │             │ ID token  │
+ │               │                               │             │           │
+ │               │                               │             │           | 
+ │               │                               ▼             ▼           │
+ │               │                ┌────────────────────┐  ┌─────────────┐  │
+ │               │                │  [container]       │  │             │  │
+ │               │                │  PostgreSQL DB     │  │ Firebase    │  │
+ │               │                │  (postgres:5432)   │  │ Admin SDK   │  │
+ │               │                └────────────────────┘  └─────────────┘  │
+ │               │                                                         │
+ └───────────────┼─────────────────────────────────────────────────────────┘
+                 │
+                 │  (browser loads app → calls server API directly)
+                 ▼
+        ┌─────────────────┐          ┌──────────────────────────┐
+        │  Browser (UI)   │◀────────▶│  Firebase Auth (cloud)   │
+        │  (JS SDK)       │          │  (token issuance / JWKS) │
+        └─────────────────┘          └──────────────────────────┘
+```
+
 ---
 
 ## Tech Stack

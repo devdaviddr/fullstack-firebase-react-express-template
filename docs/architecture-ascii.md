@@ -1,3 +1,4 @@
+```
                         ┌─────────────────────────────────────────────┐
                         │              Browser (UI)                   │
                         │         (client + Firebase JS SDK)          │
@@ -34,3 +35,4 @@
         │  Browser (UI)   │◀────────▶│  Firebase Auth (cloud)   │
         │  (JS SDK)       │          │  (token issuance / JWKS) │
         └─────────────────┘          └──────────────────────────┘
+```
