@@ -22,6 +22,7 @@ Documentation files are located in the `docs/` directory and cover various aspec
 - [client-testing.md](docs/client-testing.md) – guidance for writing and running client‑side tests
 - [docker-dev.md](docs/docker-dev.md) – running the full stack locally with Docker Compose and hot reload (see `.env.example`)
 - [docker-prod.md](docs/docker-prod.md) – building and running production images with multi-stage Dockerfiles (includes healthcheck details)
+- [postgres.md](docs/postgres.md) – PostgreSQL configuration and usage
 
 ---
 
@@ -121,14 +122,27 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
 ```
 
 If you plan to run the API against a PostgreSQL database (the default for
-Docker Compose setup), also set a connection string:
+Docker Compose setup), also set a connection string.  The compose files start
+a `postgres:15-alpine` container with the following default credentials:
+
+```yaml
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=app
+```
+
+Those values are wired into the server service via the
+`DATABASE_URL` environment variable, which you can override locally like so:
 
 ```env
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/app
 ```
 
-This variable is optional; the app will operate without it but database
-features (user persistence) will be disabled in that case.
+In production the compose configuration builds the URL from
+`${POSTGRES_USER}`, `${POSTGRES_PASSWORD}`, and `${POSTGRES_DB}`.  If the
+variable is omitted entirely the server still starts, but it skips database
+initialization and repo methods will log a notice; user persistence will be
+in-memory only.
 
 ### 4. Run in development
 
