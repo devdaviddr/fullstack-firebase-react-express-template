@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useMe, useUpdateProfile, useDeleteAccount } from '../../api/hooks';
 
-export default function Dashboard() {
+export default function Dashboard(): JSX.Element {
   const { user, signOut } = useAuth();
   const { data, isLoading, error, refetch } = useMe();
   const [updateSuccess, setUpdateSuccess] = useState(false);

@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { AppError } from './AppError';
 
 /** Central error handler – must be the last middleware registered in app.ts. */
-export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: unknown, req: Request, res: Response, _next: NextFunction): void {
   // Structured log: include method + path for quick triage; never log auth tokens.
   const context = `${req.method} ${req.path}`;
   if (err instanceof AppError) {

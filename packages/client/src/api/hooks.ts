@@ -1,11 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { useAuth } from '../features/auth/AuthContext';
 import * as userService from './services/userService';
 import { MeResponse } from './types';
 
 // helpers have been removed; useQuery/useMutation object form below
 
-export function useMe() {
+export function useMe(): UseQueryResult<MeResponse, Error> {
   const { user, getIdToken } = useAuth();
 
   return useQuery<MeResponse>({
@@ -18,7 +19,7 @@ export function useMe() {
   });
 }
 
-export function useUpdateProfile() {
+export function useUpdateProfile(): UseMutationResult<MeResponse, Error, Partial<{ name: string; picture: string }>> {
   const queryClient = useQueryClient();
   const { getIdToken } = useAuth();
 
@@ -33,7 +34,7 @@ export function useUpdateProfile() {
   });
 }
 
-export function useDeleteAccount() {
+export function useDeleteAccount(): UseMutationResult<void, Error, void> {
   const queryClient = useQueryClient();
   const { signOut, getIdToken } = useAuth();
 

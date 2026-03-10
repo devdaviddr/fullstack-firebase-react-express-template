@@ -5,7 +5,7 @@ import ErrorBoundary from './features/common/ErrorBoundary';
 import Login from './features/login/Login';
 import Dashboard from './features/dashboard/Dashboard';
 
-export default function App() {
+export default function App(): JSX.Element {
   return (
     <BrowserRouter>
       <ErrorBoundary>

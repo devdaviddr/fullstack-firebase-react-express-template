@@ -1,5 +1,5 @@
-/// <reference types="vitest" />
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type { DecodedIdToken } from 'firebase-admin/auth';
 
 // mock firebase before any app module is loaded
 vi.mock('../../src/firebase', () => ({ default: {} }));
@@ -12,7 +12,7 @@ import request from 'supertest';
 import { createApp } from '../../src/app';
 import { verifyIdToken, deleteUser } from '../../src/repositories/userRepository';
 
-const decoded: any = { uid: 'user123', email: 'a@b.com', name: 'Alice', picture: null };
+const decoded = { uid: 'user123', email: 'a@b.com', name: 'Alice', picture: null } as unknown as DecodedIdToken;
 
 describe('e2e /api/me', () => {
   beforeEach(() => {

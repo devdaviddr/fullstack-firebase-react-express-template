@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { ReactNode } from 'react';
 
-export default function ProtectedRoute({ children }: { children: ReactNode }) {
+export default function ProtectedRoute({ children }: { children: ReactNode }): JSX.Element {
   const { user, loading } = useAuth();
 
   if (loading) {

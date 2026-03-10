@@ -6,6 +6,8 @@ import Dashboard from './Dashboard';
 import * as AuthContext from '../auth/AuthContext';
 import * as hooks from '../../api/hooks';
 import type { User } from 'firebase/auth';
+import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
+import type { MeResponse } from '../../api/types';
 
 vi.mock('../../api/hooks', () => ({
   useMe: vi.fn(),
@@ -40,15 +42,15 @@ describe('Dashboard', () => {
       isLoading: false,
       error: null,
       refetch: vi.fn(),
-    } as any);
+    } as unknown as UseQueryResult<MeResponse, Error>);
     vi.mocked(hooks.useUpdateProfile).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
-    } as any);
+    } as unknown as UseMutationResult<MeResponse, Error, Partial<{ name: string; picture: string }>>);
     vi.mocked(hooks.useDeleteAccount).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
-    } as any);
+    } as unknown as UseMutationResult<void, Error, void>);
   });
 
   afterEach(() => vi.restoreAllMocks());
@@ -70,18 +72,18 @@ describe('Dashboard', () => {
       isLoading: true,
       error: null,
       refetch: vi.fn(),
-    } as any);
+    } as unknown as UseQueryResult<MeResponse, Error>);
     render(<Dashboard />, { wrapper });
     expect(screen.getByRole('button', { name: /fetching/i })).toBeInTheDocument();
   });
 
   it('displays API response data when available', () => {
     vi.mocked(hooks.useMe).mockReturnValue({
-      data: { uid: '123', email: 'test@example.com' },
+      data: { uid: '123', email: 'test@example.com' } as MeResponse,
       isLoading: false,
       error: null,
       refetch: vi.fn(),
-    } as any);
+    } as unknown as UseQueryResult<MeResponse, Error>);
     render(<Dashboard />, { wrapper });
     expect(screen.getByText(/"uid": "123"/)).toBeInTheDocument();
   });
@@ -92,7 +94,7 @@ describe('Dashboard', () => {
       isLoading: false,
       error: new Error('Unauthorized'),
       refetch: vi.fn(),
-    } as any);
+    } as unknown as UseQueryResult<MeResponse, Error>);
     render(<Dashboard />, { wrapper });
     expect(screen.getByText(/unauthorized/i)).toBeInTheDocument();
   });
@@ -104,7 +106,7 @@ describe('Dashboard', () => {
       isLoading: false,
       error: null,
       refetch,
-    } as any);
+    } as unknown as UseQueryResult<MeResponse, Error>);
     render(<Dashboard />, { wrapper });
     await userEvent.click(screen.getByRole('button', { name: /call \/api\/me/i }));
     expect(refetch).toHaveBeenCalledOnce();

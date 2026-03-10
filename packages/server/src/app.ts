@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Express } from 'express';
 import apiRouter from './routes';
 import { applySecurity } from './middleware/security';
 import { applyLogging } from './middleware/logger';
@@ -7,7 +7,7 @@ import { applyCors } from './middleware/cors';
 import { errorHandler } from './middleware/errorHandler';
 import { config } from './config';
 
-export function createApp() {
+export function createApp(): Express {
   const app = express();
 
   // trust first proxy hop so express-rate-limit uses the real client IP
