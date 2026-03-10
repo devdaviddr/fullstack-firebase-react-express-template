@@ -1,7 +1,7 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
-import { useMe } from './hooks';
+import { useMe, useUpdateProfile, useDeleteAccount } from './hooks';
 import * as AuthContext from '../features/auth/AuthContext';
 import * as userService from './services/userService';
 import type { User } from 'firebase/auth';
@@ -35,7 +35,8 @@ describe('useMe', () => {
   afterEach(() => vi.restoreAllMocks());
 
   it('calls getIdToken then passes the token to getMe', async () => {
-    mockUseAuth();
+    const getIdToken = vi.fn<() => Promise<string>>().mockResolvedValue('test-token');
+    mockUseAuth({ getIdToken });
     const mockData = { uid: '123', email: 'test@example.com' };
     vi.mocked(userService.getMe).mockResolvedValue(mockData);
 
@@ -43,7 +44,8 @@ describe('useMe', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(userService.getMe).toHaveBeenCalled();
+    expect(getIdToken).toHaveBeenCalled();
+    expect(userService.getMe).toHaveBeenCalledWith('test-token');
     expect(result.current.data).toEqual(mockData);
   });
 
@@ -56,7 +58,8 @@ describe('useMe', () => {
   });
 
   it('exposes isLoading true before the query resolves', () => {
-    mockUseAuth();
+    const getIdToken = vi.fn<() => Promise<string>>().mockResolvedValue('foo');
+    mockUseAuth({ getIdToken });
     // never resolves — keeps the hook in loading state
     vi.mocked(userService.getMe).mockReturnValue(new Promise(() => {}));
 
@@ -66,12 +69,68 @@ describe('useMe', () => {
   });
 
   it('exposes error when getMe rejects', async () => {
-    mockUseAuth();
+    const getIdToken = vi.fn<() => Promise<string>>().mockResolvedValue('foo');
+    mockUseAuth({ getIdToken });
     vi.mocked(userService.getMe).mockRejectedValue(new Error('network error'));
 
     const { result } = renderHook(() => useMe(), { wrapper: makeWrapper() });
 
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect((result.current.error as Error).message).toBe('network error');
+  });
+});
+
+// additional hook tests for token-handling mutations
+
+describe('useUpdateProfile', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('fetches token and calls updateProfile, then updates cache', async () => {
+    const getIdToken = vi.fn<() => Promise<string>>().mockResolvedValue('up-token');
+    mockUseAuth({ getIdToken });
+    const updated = { uid: 'abc', name: 'New Name' };
+    vi.mocked(userService.updateProfile).mockResolvedValue(updated);
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useUpdateProfile(), { wrapper });
+
+    await act(async () => {
+      result.current.mutateAsync({ name: 'New Name' });
+    });
+
+    expect(getIdToken).toHaveBeenCalled();
+    expect(userService.updateProfile).toHaveBeenCalledWith({ name: 'New Name' }, 'up-token');
+    // cache populated via onSuccess
+    expect(queryClient.getQueryData(['me'])).toEqual(updated);
+  });
+});
+
+describe('useDeleteAccount', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('fetches token and calls deleteAccount, then clears cache and signs out', async () => {
+    const getIdToken = vi.fn<() => Promise<string>>().mockResolvedValue('del-token');
+    const signOut = vi.fn<() => Promise<void>>().mockResolvedValue();
+    mockUseAuth({ getIdToken, signOut });
+    vi.mocked(userService.deleteAccount).mockResolvedValue(undefined);
+
+    const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+
+    const { result } = renderHook(() => useDeleteAccount(), { wrapper });
+
+    await act(async () => {
+      result.current.mutateAsync();
+    });
+
+    expect(getIdToken).toHaveBeenCalled();
+    expect(userService.deleteAccount).toHaveBeenCalledWith('del-token');
+    expect(queryClient.getQueryData(['me'])).toBeUndefined();
+    expect(signOut).toHaveBeenCalled();
   });
 });
