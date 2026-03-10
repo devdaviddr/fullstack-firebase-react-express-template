@@ -29,3 +29,27 @@ export function useMe() {
     },
   });
 }
+
+export function useUpdateProfile() {
+  const { getIdToken } = useAuth();
+
+  return useMutationHook<MeResponse, Partial<{ name: string; picture: string }>>(
+    {
+      mutationFn: async (vars) => {
+        const token = await getIdToken();
+        return userService.updateProfile(vars, token);
+      },
+    },
+  );
+}
+
+export function useDeleteAccount() {
+  const { getIdToken } = useAuth();
+
+  return useMutationHook<void, void>({
+    mutationFn: async () => {
+      const token = await getIdToken();
+      await userService.deleteAccount(token);
+    },
+  });
+}

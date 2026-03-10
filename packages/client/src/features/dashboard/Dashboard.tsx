@@ -1,11 +1,11 @@
-import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { useMe, useMutationHook } from '../../api/hooks';
-import * as userService from '../../api/services/userService';
+import { useMe, useUpdateProfile } from '../../api/hooks';
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
   const { data, isLoading, error, refetch } = useMe();
+
+  const updateMutation = useUpdateProfile();
 
   const apiResult = error ? String(error) : data ? JSON.stringify(data, null, 2) : null;
   const fetching = isLoading;
@@ -14,10 +14,6 @@ export default function Dashboard() {
     refetch();
   };
 
-  // example mutation: update profile with dummy name
-  const updateMutation = useMutationHook({
-    mutationFn: (vars: Partial<{ name: string; picture: string }>) => userService.updateProfile(vars),
-  });
   const callUpdate = () => updateMutation.mutate({ name: 'New Name' });
 
   return (

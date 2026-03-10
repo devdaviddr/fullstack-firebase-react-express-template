@@ -1,7 +1,8 @@
 import 'dotenv/config';
 import { createApp } from './app';
+import { config } from './config';
 
-const PORT = process.env.PORT ?? 3001;
+const PORT = config.port;
 const app = createApp();
 
 // ── Start ─────────────────────────────────────────────────────────────────────

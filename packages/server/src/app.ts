@@ -10,14 +10,17 @@ import { config } from './config';
 export function createApp() {
   const app = express();
 
+  // trust first proxy hop so express-rate-limit uses the real client IP
+  app.set('trust proxy', 1);
+
   // apply middleware layers
   applySecurity(app);
   applyLogging(app);
   applyRateLimiting(app, config.rateLimit);
   applyCors(app, config.corsOrigin);
 
-  // built-in middleware
-  app.use(express.json());
+  // built-in middleware — 10 kb cap prevents trivial payload-flood attacks
+  app.use(express.json({ limit: '10kb' }));
 
   // mount API router
   app.use('/api', apiRouter);

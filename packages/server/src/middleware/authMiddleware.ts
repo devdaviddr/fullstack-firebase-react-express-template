@@ -18,7 +18,7 @@ export async function authMiddleware(
     return;
   }
 
-  const idToken = authHeader.split('Bearer ')[1];
+  const idToken = authHeader.slice(7);
 
   try {
     const decodedToken = await verifyIdToken(idToken);

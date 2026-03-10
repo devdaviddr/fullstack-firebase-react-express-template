@@ -51,10 +51,10 @@ export default class ErrorBoundary extends React.Component<
             An unexpected error occurred. Please try refreshing the page.
           </p>
           <button
-            onClick={() => window.location.reload()}
+            onClick={this.reset}
             className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"
           >
-            Reload
+            Try again
           </button>
         </div>
       );
