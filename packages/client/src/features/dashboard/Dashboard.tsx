@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { useMe, useUsers, useUpdateProfile, useDeleteAccount } from '../../api/hooks';
 
@@ -7,8 +7,8 @@ export default function Dashboard(): JSX.Element {
   const { data, isLoading, error, refetch } = useMe();
   const { data: users } = useUsers();
 
-  const [formName, setFormName] = useState('');
-  const [formPicture, setFormPicture] = useState('');
+  const [formName, setFormName] = useState<string | undefined>(undefined);
+  const [formPicture, setFormPicture] = useState<string | undefined>(undefined);
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
   const updateMutation = useUpdateProfile();
@@ -16,14 +16,6 @@ export default function Dashboard(): JSX.Element {
 
   const apiResult = error ? String(error) : data ? JSON.stringify(data, null, 2) : null;
   const fetching = isLoading;
-
-  // populate form when data loads
-  useEffect(() => {
-    if (data) {
-      setFormName(data.name ?? '');
-      setFormPicture(data.picture ?? '');
-    }
-  }, [data]);
 
   const callProtectedEndpoint = () => {
     refetch();
@@ -81,7 +73,7 @@ export default function Dashboard(): JSX.Element {
             </label>
             <input
               id="name"
-              value={formName}
+              value={formName ?? data?.name ?? ''}
               onChange={(e) => setFormName(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />
@@ -92,7 +84,7 @@ export default function Dashboard(): JSX.Element {
             </label>
             <input
               id="picture"
-              value={formPicture}
+              value={formPicture ?? data?.picture ?? ''}
               onChange={(e) => setFormPicture(e.target.value)}
               className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
             />

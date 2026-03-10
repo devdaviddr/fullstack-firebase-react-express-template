@@ -1,4 +1,4 @@
-import { render, screen, act, waitFor } from '@testing-library/react';
+import { render, screen, act, waitFor, renderHook } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
 import { AuthProvider, useAuth } from './AuthContext';
@@ -73,29 +73,15 @@ describe('AuthProvider', () => {
 
   it('signInWithGoogle delegates to signInWithPopup', async () => {
     mockSignInWithPopup.mockResolvedValue({});
-
-    let capturedCtx!: ReturnType<typeof useAuth>;
-    function CtxCapture() {
-      capturedCtx = useAuth();
-      return null;
-    }
-    render(<CtxCapture />, { wrapper });
-    await act(() => capturedCtx.signInWithGoogle());
+    const { result } = renderHook(() => useAuth(), { wrapper });
+    await act(() => result.current.signInWithGoogle());
     expect(mockSignInWithPopup).toHaveBeenCalled();
   });
 
   it('getIdToken throws when no user is logged in', async () => {
-    render(<AuthConsumer />, { wrapper });
-    act(() => mockOnAuthStateChanged(null));
-
-    let capturedCtx!: ReturnType<typeof useAuth>;
-    function CtxCapture() {
-      capturedCtx = useAuth();
-      return null;
-    }
-    render(<CtxCapture />, { wrapper });
+    const { result } = renderHook(() => useAuth(), { wrapper });
     await act(() => mockOnAuthStateChanged(null));
-    await expect(capturedCtx.getIdToken()).rejects.toThrow('Not authenticated');
+    await expect(result.current.getIdToken()).rejects.toThrow('Not authenticated');
   });
 });
 
