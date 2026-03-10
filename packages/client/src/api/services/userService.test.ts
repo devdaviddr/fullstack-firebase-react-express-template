@@ -60,6 +60,28 @@ describe('userService', () => {
       });
     });
   });
+
+  describe('getUsers', () => {
+    it('calls GET /users and returns array', async () => {
+      const users = [{ uid: 'u1' }, { uid: 'u2' }];
+      vi.mocked(axiosInstance.get).mockResolvedValue({ data: users });
+      const result = await userService.getUsers('tok');
+      expect(vi.mocked(axiosInstance.get)).toHaveBeenCalledWith('/users', {
+        headers: { Authorization: 'Bearer tok' },
+      });
+      expect(result).toEqual(users);
+    });
+
+    it('succeeds without token (no headers)', async () => {
+      const users = [];
+      vi.mocked(axiosInstance.get).mockResolvedValue({ data: users });
+      const result = await userService.getUsers();
+      expect(vi.mocked(axiosInstance.get)).toHaveBeenCalledWith('/users', {
+        headers: undefined,
+      });
+      expect(result).toEqual(users);
+    });
+  });
 });
 
 

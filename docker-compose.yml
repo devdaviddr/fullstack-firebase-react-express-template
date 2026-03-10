@@ -16,6 +16,17 @@ services:
     environment:
       - VITE_API_URL=http://server:${SERVER_PORT:-3001}
     command: npm run dev
+  postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=app
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
 
   server:
     build:
@@ -32,6 +43,9 @@ services:
       - .env
     environment:
       - PORT=${SERVER_PORT}
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/app
+    depends_on:
+      - postgres
     command: npm run dev
     healthcheck:
       test: ["CMD-SHELL","curl -f http://localhost:${SERVER_PORT:-3001}/api/health || exit 1"]
@@ -42,3 +56,4 @@ services:
 volumes:
   client_node_modules:
   server_node_modules:
+  postgres_data:

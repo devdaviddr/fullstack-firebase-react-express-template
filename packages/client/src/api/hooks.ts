@@ -2,7 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
 import { useAuth } from '../features/auth/AuthContext';
 import * as userService from './services/userService';
-import { MeResponse } from './types';
+import { MeResponse, UserProfile } from './types';
 
 // helpers have been removed; useQuery/useMutation object form below
 
@@ -48,5 +48,17 @@ export function useDeleteAccount(): UseMutationResult<void, Error, void> {
       queryClient.removeQueries({ queryKey: ['me'] });
       signOut();
     },
+  });
+}
+
+export function useUsers(): UseQueryResult<UserProfile[], Error> {
+  const { user, getIdToken } = useAuth();
+  return useQuery<UserProfile[]>({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const token = await getIdToken();
+      return userService.getUsers(token);
+    },
+    enabled: !!user,
   });
 }

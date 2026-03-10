@@ -64,6 +64,19 @@ The Firebase module is stubbed globally to prevent real initialization.
 - **Objective**: exercise all three rendering branches of `ProtectedRoute`.
 - **Technique**: stub `useAuth()` return value with loading, unauthenticated, and authenticated states; wrap in `MemoryRouter`.
 
+### `features/dashboard/Dashboard.test.tsx`
+
+- **Objective**: validate interactive dashboard behaviour now that users can edit
+  their name/picture and view a list of all users.
+- **Additions**:
+  - form inputs pre‑populate from `useMe()` and send updates via
+    `useUpdateProfile()`.
+  - a secondary query hook `useUsers()` fetches `/api/users`; tests mock it and
+    assert that the list renders when data is returned.
+- **Technique**: in addition to existing mocks for auth and API hooks,
+  `useUsers` is also stubbed; `userEvent` types into inputs and clicks the save
+  button, and the mutation is inspected for correct arguments.
+
 ### `api/services/userService.test.ts`
 
 - **Objective**: unit‑test HTTP helper functions without network.

@@ -120,6 +120,16 @@ FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----
 "
 ```
 
+If you plan to run the API against a PostgreSQL database (the default for
+Docker Compose setup), also set a connection string:
+
+```env
+DATABASE_URL=postgres://postgres:postgres@localhost:5432/app
+```
+
+This variable is optional; the app will operate without it but database
+features (user persistence) will be disabled in that case.
+
 ### 4. Run in development
 
 ```bash
@@ -218,5 +228,8 @@ Notes:
 |---|---|---|---|
 | GET | `/api/health` | Public | Server health check |
 | GET | `/api/me` | Bearer token | Returns the authenticated user's profile |
+| PUT | `/api/me` | Bearer token | Update name/picture in database |
+| DELETE | `/api/me` | Bearer token | Delete account and revoke tokens |
+| GET | `/api/users` | Bearer token | (Authenticated) list all users |
 
 See [docs/auth.md](docs/auth.md) for how token‑based auth works and [docs/architecture.md](docs/architecture.md) for a full system overview.

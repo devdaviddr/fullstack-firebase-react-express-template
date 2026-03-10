@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { getUserProfile, applyProfileUpdate, deleteUserAccount } from '../services/userService';
+import { getOrCreateUser, updateUserProfile, deleteUserAccount } from '../services/userService';
 import { AuthenticatedRequest } from '../middleware/authMiddleware';
 
 const UpdateProfileSchema = z.object({
@@ -31,7 +31,8 @@ export async function getMe(
 ): Promise<void> {
   try {
     if (!requireUser(req, res)) return;
-    res.json(getUserProfile(req.user));
+    const profile = await getOrCreateUser(req.user);
+    res.json(profile);
   } catch (err) {
     next(err);
   }
@@ -50,7 +51,8 @@ export async function updateMe(
       res.status(400).json({ error: parsed.error.issues[0]?.message ?? 'Invalid request body' });
       return;
     }
-    res.json(applyProfileUpdate(req.user, parsed.data));
+    const profile = await updateUserProfile(req.user, parsed.data);
+    res.json(profile);
   } catch (err) {
     next(err);
   }

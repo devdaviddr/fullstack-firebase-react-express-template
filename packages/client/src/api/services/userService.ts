@@ -1,5 +1,5 @@
 import axios from '../axios';
-import { MeResponse } from '../types';
+import { MeResponse, UserProfile } from '../types';
 
 /**
  * Helper to build the headers object when an ID token is available.
@@ -32,4 +32,11 @@ export async function deleteAccount(token?: string): Promise<void> {
   await axios.delete('/me', {
     headers: makeAuthHeader(token),
   });
+}
+
+export async function getUsers(token?: string): Promise<UserProfile[]> {
+  const res = await axios.get<UserProfile[]>('/users', {
+    headers: makeAuthHeader(token),
+  });
+  return res.data;
 }
