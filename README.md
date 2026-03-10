@@ -23,6 +23,7 @@ Documentation files are located in the `docs/` directory and cover various aspec
 - [docker-dev.md](docs/docker-dev.md) – running the full stack locally with Docker Compose and hot reload (see `.env.example`)
 - [docker-prod.md](docs/docker-prod.md) – building and running production images with multi-stage Dockerfiles (includes healthcheck details)
 - [postgres.md](docs/postgres.md) – PostgreSQL configuration and usage
+- [architecture-ascii.md](docs/architecture-ascii.md) – plain‑text diagram showing container relationships
 
 ---
 
