@@ -15,7 +15,7 @@ services:
       - .env
     environment:
       - VITE_API_URL=http://server:${SERVER_PORT:-3001}
-    command: npm run dev
+    command: sh -c "npm install && npm run dev"
   postgres:
     image: postgres:15-alpine
     restart: unless-stopped
@@ -46,7 +46,7 @@ services:
       - DATABASE_URL=postgres://postgres:postgres@postgres:5432/app
     depends_on:
       - postgres
-    command: npm run dev
+    command: sh -c "npm install && npm run dev"
     healthcheck:
       test: ["CMD-SHELL","curl -f http://localhost:${SERVER_PORT:-3001}/api/health || exit 1"]
       interval: 30s
