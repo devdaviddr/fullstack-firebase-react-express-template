@@ -5,11 +5,12 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 vi.mock('../../src/firebase', () => ({ default: {} }));
 vi.mock('../../src/repositories/userRepository', () => ({
   verifyIdToken: vi.fn(),
+  deleteUser: vi.fn(),
 }));
 
 import request from 'supertest';
 import { createApp } from '../../src/app';
-import { verifyIdToken } from '../../src/repositories/userRepository';
+import { verifyIdToken, deleteUser } from '../../src/repositories/userRepository';
 
 const decoded: any = { uid: 'user123', email: 'a@b.com', name: 'Alice', picture: null };
 
@@ -74,7 +75,9 @@ describe('e2e /api/me', () => {
 
   it('DELETE returns 204 with valid token', async () => {
     vi.mocked(verifyIdToken).mockResolvedValue(decoded);
+    vi.mocked(deleteUser).mockResolvedValue();
     const app = createApp();
     await request(app).delete('/api/me').set('Authorization', 'Bearer good').expect(204);
+    expect(deleteUser).toHaveBeenCalledWith(decoded.uid);
   });
 });

@@ -17,7 +17,7 @@ export default function Login() {
       await signInWithGoogle();
     } catch (err) {
       console.error('Google sign-in failed', err);
-      setError((err as Error).message || 'Authentication failed');
+      setError(err instanceof Error ? err.message : 'Authentication failed');
     }
   };
 

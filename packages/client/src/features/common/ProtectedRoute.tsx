@@ -7,7 +7,12 @@ export default function ProtectedRoute({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="flex h-screen items-center justify-center">
+      <div
+        role="status"
+        aria-label="Loading"
+        aria-live="polite"
+        className="flex h-screen items-center justify-center"
+      >
         <span className="text-gray-500">Loading…</span>
       </div>
     );

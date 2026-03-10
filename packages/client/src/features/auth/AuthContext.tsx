@@ -1,5 +1,6 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useState,
@@ -13,6 +14,7 @@ import {
   signOut as firebaseSignOut,
 } from 'firebase/auth';
 import { auth, googleProvider } from '../../firebase';
+import { setUnauthenticatedHandler } from '../../api/axios';
 
 interface AuthContextValue {
   user: User | null;
@@ -43,11 +45,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const queryClient = useQueryClient();
 
-  const signOut = async () => {
+  const signOut = useCallback(async () => {
     await firebaseSignOut(auth);
     // clear any cached server data when user signs out
     queryClient.clear();
-  };
+  }, [queryClient]);
+
+  // Register the axios interceptor so any 401 response automatically signs the user out.
+  // Re-registers whenever signOut identity changes (i.e. when queryClient changes).
+  useEffect(() => {
+    setUnauthenticatedHandler(() => {
+      signOut().catch(console.error);
+    });
+  }, [signOut]);
 
   const getIdToken = async (): Promise<string> => {
     if (!user) throw new Error('Not authenticated');

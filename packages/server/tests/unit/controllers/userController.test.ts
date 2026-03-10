@@ -4,10 +4,11 @@ import { describe, it, expect, vi } from 'vitest';
 vi.mock('../../../src/services/userService', () => ({
   getUserProfile: vi.fn(),
   applyProfileUpdate: vi.fn(),
+  deleteUserAccount: vi.fn(),
 }));
 
 import { getMe, updateMe, deleteMe } from '../../../src/controllers/userController';
-import { getUserProfile, applyProfileUpdate } from '../../../src/services/userService';
+import { getUserProfile, applyProfileUpdate, deleteUserAccount } from '../../../src/services/userService';
 
 const fakeDecoded: any = { uid: 'abc', email: 'test@example.com', name: 'Test User', picture: undefined };
 
@@ -54,11 +55,13 @@ describe('userController.updateMe', () => {
 
 describe('userController.deleteMe', () => {
   it('returns 204 with no body', async () => {
+    vi.mocked(deleteUserAccount).mockResolvedValue();
     const req: any = { user: fakeDecoded };
     const res: any = { status: vi.fn().mockReturnThis(), send: vi.fn() };
     const next = vi.fn();
 
     await deleteMe(req, res, next);
+    expect(deleteUserAccount).toHaveBeenCalledWith(fakeDecoded.uid);
     expect(res.status).toHaveBeenCalledWith(204);
     expect(res.send).toHaveBeenCalled();
   });

@@ -1,4 +1,5 @@
 import type { DecodedIdToken } from 'firebase-admin/auth';
+import { deleteUser } from '../repositories/userRepository';
 
 /** Shape returned by all /me endpoints. */
 export interface UserProfile {
@@ -24,3 +25,12 @@ export function applyProfileUpdate(
 ): UserProfile {
   return { ...getUserProfile(decoded), ...data };
 }
+
+/**
+ * Permanently removes the user from Firebase Auth.
+ * Extend this function to purge any database records before the Auth deletion.
+ */
+export async function deleteUserAccount(uid: string): Promise<void> {
+  await deleteUser(uid);
+}
+

@@ -10,6 +10,7 @@ import type { User } from 'firebase/auth';
 vi.mock('../../api/hooks', () => ({
   useMe: vi.fn(),
   useUpdateProfile: vi.fn(),
+  useDeleteAccount: vi.fn(),
 }));
 
 const mockUser = {
@@ -41,6 +42,10 @@ describe('Dashboard', () => {
       refetch: vi.fn(),
     } as any);
     vi.mocked(hooks.useUpdateProfile).mockReturnValue({
+      mutate: vi.fn(),
+      isPending: false,
+    } as any);
+    vi.mocked(hooks.useDeleteAccount).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
     } as any);
