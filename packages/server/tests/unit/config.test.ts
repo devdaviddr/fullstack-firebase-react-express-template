@@ -1,9 +1,10 @@
-/// <reference types="vitest" />
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 
 describe('config parsing', () => {
   beforeEach(() => {
     vi.resetModules();
+    // Provide minimal Firebase credentials so superRefine passes in every test.
+    vi.stubEnv('FIREBASE_SERVICE_ACCOUNT_JSON', '{}');
   });
 
   afterEach(() => {
@@ -15,7 +16,8 @@ describe('config parsing', () => {
     vi.stubEnv('CORS_ORIGIN', 'http://localhost:5173');
     const { config } = await import('../../src/config');
     expect(config.port).toBe(3001);
-    expect(config.corsOrigin).toBe('http://localhost:5173');
+    // corsOrigin is now always an array (supports comma-separated values)
+    expect(config.corsOrigin).toEqual(['http://localhost:5173']);
     expect(config.rateLimit.windowMs).toBe(15 * 60 * 1000);
     expect(config.rateLimit.max).toBe(100);
   });
@@ -25,7 +27,13 @@ describe('config parsing', () => {
     vi.stubEnv('CORS_ORIGIN', 'https://example.com');
     const { config } = await import('../../src/config');
     expect(config.port).toBe(4000);
-    expect(config.corsOrigin).toBe('https://example.com');
+    expect(config.corsOrigin).toEqual(['https://example.com']);
+  });
+
+  it('supports comma-separated CORS_ORIGIN values', async () => {
+    vi.stubEnv('CORS_ORIGIN', 'https://app.com,https://staging.app.com');
+    const { config } = await import('../../src/config');
+    expect(config.corsOrigin).toEqual(['https://app.com', 'https://staging.app.com']);
   });
 
   it('config exports expected shape', async () => {

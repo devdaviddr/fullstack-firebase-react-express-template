@@ -1,14 +1,25 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 
-export default function Login() {
+export default function Login(): JSX.Element {
   const { user, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) navigate('/', { replace: true });
   }, [user, navigate]);
+
+  const handleSignIn = async () => {
+    setError(null);
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      console.error('Google sign-in failed', err);
+      setError(err instanceof Error ? err.message : 'Authentication failed');
+    }
+  };
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-50">
@@ -16,7 +27,7 @@ export default function Login() {
         <h1 className="mb-2 text-center text-2xl font-bold text-gray-800">Welcome</h1>
         <p className="mb-6 text-center text-sm text-gray-500">Sign in to continue</p>
         <button
-          onClick={signInWithGoogle}
+          onClick={handleSignIn}
           className="flex w-full items-center justify-center gap-3 rounded-lg border border-gray-300 bg-white px-4 py-2.5 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 active:scale-95"
         >
           <svg className="h-5 w-5" viewBox="0 0 48 48">
@@ -27,6 +38,9 @@ export default function Login() {
           </svg>
           Sign in with Google
         </button>
+        {error && (
+          <p className="mt-4 text-red-600 text-sm">{error}</p>
+        )}
       </div>
     </div>
   );

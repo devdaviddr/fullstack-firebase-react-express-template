@@ -1,4 +1,3 @@
-/// <reference types="vitest" />
 import { describe, it, expect, vi } from 'vitest';
 
 // prevent firebase-admin from initialising during app import

@@ -6,44 +6,60 @@ vi.mock('../axios', () => ({
     get: vi.fn(),
     put: vi.fn(),
     delete: vi.fn(),
+    interceptors: { request: { use: vi.fn() } },
   },
 }));
+
+// service methods now accept an optional `token` argument which is turned into
+// an `Authorization` header. The tests only care that the header is passed when
+// a token is supplied.
 
 describe('userService', () => {
   beforeEach(() => vi.clearAllMocks());
 
   describe('getMe', () => {
-    it('sends Authorization header when a token is provided', async () => {
+    it('calls GET /me with Authorization header when token provided', async () => {
       vi.mocked(axiosInstance.get).mockResolvedValue({ data: { uid: 'abc' } });
       const result = await userService.getMe('my-token');
-      expect(axiosInstance.get).toHaveBeenCalledWith('/me', {
+      expect(vi.mocked(axiosInstance.get)).toHaveBeenCalledWith('/me', {
         headers: { Authorization: 'Bearer my-token' },
       });
       expect(result).toEqual({ uid: 'abc' });
     });
 
-    it('omits the Authorization header when no token is provided', async () => {
+    it('works without token (headers undefined)', async () => {
       vi.mocked(axiosInstance.get).mockResolvedValue({ data: { uid: 'abc' } });
-      await userService.getMe();
-      expect(axiosInstance.get).toHaveBeenCalledWith('/me', { headers: undefined });
+      const result = await userService.getMe();
+      expect(vi.mocked(axiosInstance.get)).toHaveBeenCalledWith('/me', {
+        headers: undefined,
+      });
+      expect(result).toEqual({ uid: 'abc' });
     });
   });
 
   describe('updateProfile', () => {
-    it('calls PUT /me with the provided data and returns the response', async () => {
+    it('calls PUT /me with provided data and token header', async () => {
       const updated = { uid: 'abc', name: 'New Name' };
       vi.mocked(axiosInstance.put).mockResolvedValue({ data: updated });
-      const result = await userService.updateProfile({ name: 'New Name' });
-      expect(axiosInstance.put).toHaveBeenCalledWith('/me', { name: 'New Name' });
+      const result = await userService.updateProfile({ name: 'New Name' }, 'tok');
+      expect(vi.mocked(axiosInstance.put)).toHaveBeenCalledWith(
+        '/me',
+        { name: 'New Name' },
+        { headers: { Authorization: 'Bearer tok' } },
+      );
       expect(result).toEqual(updated);
     });
   });
 
   describe('deleteAccount', () => {
-    it('calls DELETE /me', async () => {
+    it('calls DELETE /me with token header', async () => {
       vi.mocked(axiosInstance.delete).mockResolvedValue({ data: {} });
-      await userService.deleteAccount();
-      expect(axiosInstance.delete).toHaveBeenCalledWith('/me');
+      await userService.deleteAccount('xyz');
+      expect(vi.mocked(axiosInstance.delete)).toHaveBeenCalledWith('/me', {
+        headers: { Authorization: 'Bearer xyz' },
+      });
     });
   });
 });
+
+

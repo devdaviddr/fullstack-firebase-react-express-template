@@ -184,6 +184,34 @@ All workspace commands are defined at the root `package.json` and are forwarded 
 
 ---
 
+## Linting 🔍
+
+The repository includes a shared ESLint configuration at the repo root. The primary lint command is wired at the root `package.json` and forwards to package-level lint scripts.
+
+Run lint across all packages:
+
+```bash
+npm run lint
+```
+
+Run lint for a single package:
+
+```bash
+npm run lint --workspace=packages/client
+npm run lint --workspace=packages/server
+```
+
+Auto-fix fixable issues across the repository:
+
+```bash
+npx eslint . --ext .ts,.tsx --fix
+```
+
+Notes:
+- The server `lint` script runs `eslint` followed by `tsc --noEmit` so type errors are checked as part of linting.
+- See [docs/eslint.md](docs/eslint.md) for full configuration details, rules and overrides.
+
+
 ## API Endpoints
 
 | Method | Path | Auth | Description |

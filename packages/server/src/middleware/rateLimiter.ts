@@ -6,7 +6,7 @@ export interface RateLimitOptions {
   max: number;
 }
 
-export function applyRateLimiting(app: Express, opts: RateLimitOptions) {
+export function applyRateLimiting(app: Express, opts: RateLimitOptions): void {
   const limiter = rateLimit(opts);
   app.use(limiter);
 }

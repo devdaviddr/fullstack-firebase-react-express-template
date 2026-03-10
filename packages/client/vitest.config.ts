@@ -4,7 +4,7 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   // cast needed: vitest bundles its own vite internally, causing a Plugin type
   // mismatch between the project's vite and vitest's internal copy at runtime.
-  plugins: [react() as any],
+  plugins: [react() as unknown as import('vite').Plugin],
   test: {
     globals: true,
     environment: 'jsdom',
