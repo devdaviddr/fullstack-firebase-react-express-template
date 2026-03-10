@@ -33,7 +33,8 @@ export function useDeleteAccount() {
   return useMutation<void, Error, void>({
     mutationFn: userService.deleteAccount,
     onSuccess() {
-      queryClient.removeQueries(['me']);
+      // `removeQueries` expects a filters object in v4+; provide the queryKey explicitly
+      queryClient.removeQueries({ queryKey: ['me'] });
       signOut();
     },
   });
