@@ -1,7 +1,7 @@
 import { renderHook, waitFor, act } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ReactNode } from 'react';
-import { useMe, useUpdateProfile, useDeleteAccount } from './hooks';
+import { useMe, useUsers, useUpdateProfile, useDeleteAccount } from './hooks';
 import * as AuthContext from '../features/auth/AuthContext';
 import * as userService from './services/userService';
 import type { User } from 'firebase/auth';
@@ -132,5 +132,30 @@ describe('useDeleteAccount', () => {
     expect(userService.deleteAccount).toHaveBeenCalledWith('del-token');
     expect(queryClient.getQueryData(['me'])).toBeUndefined();
     expect(signOut).toHaveBeenCalled();
+  });
+});
+
+// tests for new hook
+
+describe('useUsers', () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it('fetches token then calls getUsers', async () => {
+    const getIdToken = vi.fn<() => Promise<string>>().mockResolvedValue('u-token');
+    mockUseAuth({ getIdToken });
+    const users = [{ uid: 'u1' }];
+    vi.mocked(userService.getUsers).mockResolvedValue(users);
+
+    const { result } = renderHook(() => useUsers(), { wrapper: makeWrapper() });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(getIdToken).toHaveBeenCalled();
+    expect(userService.getUsers).toHaveBeenCalledWith('u-token');
+    expect(result.current.data).toEqual(users);
+  });
+
+  it('does not fire when there is no authenticated user', () => {
+    mockUseAuth({ user: null });
+    renderHook(() => useUsers(), { wrapper: makeWrapper() });
+    expect(userService.getUsers).not.toHaveBeenCalled();
   });
 });

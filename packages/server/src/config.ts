@@ -16,6 +16,7 @@ const EnvSchema = z
     FIREBASE_CLIENT_EMAIL: z.string().email().optional(),
     FIREBASE_PRIVATE_KEY: z.string().optional(),
     FIREBASE_SERVICE_ACCOUNT_JSON: z.string().optional(),
+    DATABASE_URL: z.string().url().optional(),
   })
   .superRefine((env, ctx) => {
     const hasJson = Boolean(env.FIREBASE_SERVICE_ACCOUNT_JSON);
@@ -49,4 +50,6 @@ export const config = {
     privateKey: _env.FIREBASE_PRIVATE_KEY,
     serviceAccountJson: _env.FIREBASE_SERVICE_ACCOUNT_JSON,
   },
+  // may be empty string if not set; some tests mock repos so DB isn't needed
+  databaseUrl: _env.DATABASE_URL ?? '',
 };

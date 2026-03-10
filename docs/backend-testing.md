@@ -39,6 +39,7 @@ packages/server/
 - **`config.test.ts`**: validates environment variable parsing and defaults.
 - **`middleware/authMiddleware.test.ts`**: exercises auth middleware with mocked `verifyIdToken` responses.
 - **`controllers/userController.test.ts`**: ensures the controller calls the service and returns JSON.
+- **`repositories/userRepository.test.ts`**: verifies SQL queries and parameter binding; the `db` helper is mocked so no real database is required.
 
 All unit tests use `vi.mock()` to stub dependencies and `vi.mocked()` for type-checked mock access. Mocks are reset between examples.
 

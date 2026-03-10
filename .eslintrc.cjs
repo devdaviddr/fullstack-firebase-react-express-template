@@ -12,7 +12,8 @@ module.exports = {
     'plugin:@typescript-eslint/recommended',
     'plugin:import/recommended',
     'plugin:import/typescript',
-    'plugin:react/recommended'
+    'plugin:react/recommended',
+    'plugin:react-hooks/recommended'
   ],
   settings: {
     react: { version: 'detect' },
@@ -35,7 +36,7 @@ module.exports = {
   overrides: [
     {
       files: ['packages/client/src/**/*.{ts,tsx}'],
-      env: { browser: true, node: true, es2021: true },
+      env: { browser: true, es2021: true },
       parserOptions: { project: ['./packages/client/tsconfig.json'] },
       rules: { 'import/no-named-as-default-member': 'off' }
     },
@@ -44,7 +45,6 @@ module.exports = {
       env: { node: true, es2021: true },
       parserOptions: { project: ['./packages/server/tsconfig.json'] },
       rules: {
-        '@typescript-eslint/no-var-requires': 'off',
         'import/no-named-as-default-member': 'off',
         'import/no-named-as-default': 'off',
         'no-console': 'off'

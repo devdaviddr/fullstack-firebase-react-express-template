@@ -1,10 +1,14 @@
 import { useState } from 'react';
 import { useAuth } from '../auth/AuthContext';
-import { useMe, useUpdateProfile, useDeleteAccount } from '../../api/hooks';
+import { useMe, useUsers, useUpdateProfile, useDeleteAccount } from '../../api/hooks';
 
 export default function Dashboard(): JSX.Element {
   const { user, signOut } = useAuth();
   const { data, isLoading, error, refetch } = useMe();
+  const { data: users } = useUsers();
+
+  const [formName, setFormName] = useState<string | undefined>(undefined);
+  const [formPicture, setFormPicture] = useState<string | undefined>(undefined);
   const [updateSuccess, setUpdateSuccess] = useState(false);
 
   const updateMutation = useUpdateProfile();
@@ -17,10 +21,10 @@ export default function Dashboard(): JSX.Element {
     refetch();
   };
 
-  const callUpdate = () => {
+  const handleUpdate = () => {
     setUpdateSuccess(false);
     updateMutation.mutate(
-      { name: 'New Name' },
+      { name: formName || undefined, picture: formPicture || undefined },
       { onSuccess: () => setUpdateSuccess(true) },
     );
   };
@@ -62,6 +66,46 @@ export default function Dashboard(): JSX.Element {
         </div>
 
         <div className="mt-6 rounded-2xl bg-white p-6 shadow-md">
+          <h2 className="mb-3 font-semibold text-gray-800">Your Profile</h2>
+          <div className="mb-4">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+              Name
+            </label>
+            <input
+              id="name"
+              value={formName ?? data?.name ?? ''}
+              onChange={(e) => setFormName(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+          </div>
+          <div className="mb-4">
+            <label htmlFor="picture" className="block text-sm font-medium text-gray-700">
+              Picture URL
+            </label>
+            <input
+              id="picture"
+              value={formPicture ?? data?.picture ?? ''}
+              onChange={(e) => setFormPicture(e.target.value)}
+              className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
+            />
+          </div>
+          <button
+            onClick={handleUpdate}
+            disabled={updateMutation.isPending}
+            aria-busy={updateMutation.isPending}
+            className="rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
+          >
+            {updateMutation.isPending ? 'Updating…' : 'Save changes'}
+          </button>
+
+          {updateSuccess && (
+            <p role="status" className="mt-3 text-sm font-medium text-green-700">
+              Profile updated successfully.
+            </p>
+          )}
+        </div>
+
+        <div className="mt-6 rounded-2xl bg-white p-6 shadow-md">
           <h2 className="mb-3 font-semibold text-gray-800">Protected API Demo</h2>
           <p className="mb-4 text-sm text-gray-500">
             Calls <code className="rounded bg-gray-100 px-1 py-0.5 text-xs">GET /api/me</code> with
@@ -75,25 +119,24 @@ export default function Dashboard(): JSX.Element {
           >
             {fetching ? 'Fetching…' : 'Call /api/me'}
           </button>
-          <button
-            onClick={callUpdate}
-            disabled={updateMutation.isPending}
-            aria-busy={updateMutation.isPending}
-            className="ml-4 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700 disabled:opacity-50"
-          >
-            {updateMutation.isPending ? 'Updating…' : 'Update name'}
-          </button>
-
-          {updateSuccess && (
-            <p role="status" className="mt-3 text-sm font-medium text-green-700">
-              Profile updated successfully.
-            </p>
-          )}
 
           {apiResult && (
             <pre className="mt-4 overflow-x-auto rounded-lg bg-gray-100 p-4 text-xs text-gray-800">
               {apiResult}
             </pre>
+          )}
+        </div>
+
+        <div className="mt-6 rounded-2xl bg-white p-6 shadow-md">
+          <h2 className="mb-3 font-semibold text-gray-800">All users</h2>
+          {users?.length ? (
+            <ul className="list-disc list-inside text-sm text-gray-700">
+              {users.map((u) => (
+                <li key={u.uid}>{u.uid}{u.name ? ` (${u.name})` : ''}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="text-sm text-gray-500">No users found.</p>
           )}
         </div>
 

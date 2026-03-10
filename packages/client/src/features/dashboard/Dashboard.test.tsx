@@ -7,10 +7,11 @@ import * as AuthContext from '../auth/AuthContext';
 import * as hooks from '../../api/hooks';
 import type { User } from 'firebase/auth';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
-import type { MeResponse } from '../../api/types';
+import type { MeResponse, UserProfile } from '../../api/types';
 
 vi.mock('../../api/hooks', () => ({
   useMe: vi.fn(),
+  useUsers: vi.fn(),
   useUpdateProfile: vi.fn(),
   useDeleteAccount: vi.fn(),
 }));
@@ -43,6 +44,7 @@ describe('Dashboard', () => {
       error: null,
       refetch: vi.fn(),
     } as unknown as UseQueryResult<MeResponse, Error>);
+    vi.mocked(hooks.useUsers).mockReturnValue({ data: undefined, isLoading: false, error: null } as unknown as UseQueryResult<UserProfile[], Error>);
     vi.mocked(hooks.useUpdateProfile).mockReturnValue({
       mutate: vi.fn(),
       isPending: false,
@@ -84,6 +86,7 @@ describe('Dashboard', () => {
       error: null,
       refetch: vi.fn(),
     } as unknown as UseQueryResult<MeResponse, Error>);
+    vi.mocked(hooks.useUsers).mockReturnValue({ data: [], isLoading: false, error: null } as unknown as UseQueryResult<UserProfile[], Error>);
     render(<Dashboard />, { wrapper });
     expect(screen.getByText(/"uid": "123"/)).toBeInTheDocument();
   });
@@ -107,9 +110,43 @@ describe('Dashboard', () => {
       error: null,
       refetch,
     } as unknown as UseQueryResult<MeResponse, Error>);
+    vi.mocked(hooks.useUsers).mockReturnValue({ data: [], isLoading: false, error: null } as unknown as UseQueryResult<UserProfile[], Error>);
     render(<Dashboard />, { wrapper });
     await userEvent.click(screen.getByRole('button', { name: /call \/api\/me/i }));
     expect(refetch).toHaveBeenCalledOnce();
+  });
+
+  it('allows editing profile fields and submits update', async () => {
+    // updated response object not directly asserted here
+    vi.mocked(hooks.useMe).mockReturnValue({
+      data: { uid: '123', name: 'Orig', picture: '' } as MeResponse,
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as UseQueryResult<MeResponse, Error>);
+    vi.mocked(hooks.useUsers).mockReturnValue({ data: [], isLoading: false, error: null } as unknown as UseQueryResult<UserProfile[], Error>);
+    const mutate = vi.fn();
+    vi.mocked(hooks.useUpdateProfile).mockReturnValue({ mutate, isPending: false } as unknown as UseMutationResult<MeResponse, Error, Partial<{ name: string; picture: string }>>);
+
+    render(<Dashboard />, { wrapper });
+    const nameInput = screen.getByLabelText(/name/i);
+    await userEvent.clear(nameInput);
+    await userEvent.type(nameInput, 'Hello');
+    await userEvent.click(screen.getByRole('button', { name: /save changes/i }));
+    expect(mutate).toHaveBeenCalledWith({ name: 'Hello', picture: undefined }, expect.any(Object));
+  });
+
+  it('shows users list when present', () => {
+    vi.mocked(hooks.useMe).mockReturnValue({
+      data: { uid: '123', email: 'a@b.com' } as MeResponse,
+      isLoading: false,
+      error: null,
+      refetch: vi.fn(),
+    } as unknown as UseQueryResult<MeResponse, Error>);
+    vi.mocked(hooks.useUsers).mockReturnValue({ data: [{ uid: 'u1', name: 'U1' }], isLoading: false, error: null } as unknown as UseQueryResult<UserProfile[], Error>);
+    render(<Dashboard />, { wrapper });
+    expect(screen.getByText(/all users/i)).toBeInTheDocument();
+    expect(screen.getByText(/u1/i)).toBeInTheDocument();
   });
 
   it('calls signOut when Sign out is clicked', async () => {
@@ -121,6 +158,7 @@ describe('Dashboard', () => {
       signOut,
       getIdToken: vi.fn<() => Promise<string>>().mockResolvedValue(''),
     });
+      vi.mocked(hooks.useUsers).mockReturnValue({ data: [], isLoading: false, error: null } as unknown as UseQueryResult<UserProfile[], Error>);
     render(<Dashboard />, { wrapper });
     await userEvent.click(screen.getByRole('button', { name: /sign out/i }));
     expect(signOut).toHaveBeenCalledOnce();

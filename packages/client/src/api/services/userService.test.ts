@@ -1,5 +1,6 @@
 import * as userService from './userService';
 import axiosInstance from '../axios';
+import type { UserProfile } from '../types';
 
 vi.mock('../axios', () => ({
   default: {
@@ -58,6 +59,28 @@ describe('userService', () => {
       expect(vi.mocked(axiosInstance.delete)).toHaveBeenCalledWith('/me', {
         headers: { Authorization: 'Bearer xyz' },
       });
+    });
+  });
+
+  describe('getUsers', () => {
+    it('calls GET /users and returns array', async () => {
+      const users: UserProfile[] = [{ uid: 'u1' }, { uid: 'u2' }];
+      vi.mocked(axiosInstance.get).mockResolvedValue({ data: users });
+      const result = await userService.getUsers('tok');
+      expect(vi.mocked(axiosInstance.get)).toHaveBeenCalledWith('/users', {
+        headers: { Authorization: 'Bearer tok' },
+      });
+      expect(result).toEqual(users);
+    });
+
+    it('succeeds without token (no headers)', async () => {
+      const users: UserProfile[] = [];
+      vi.mocked(axiosInstance.get).mockResolvedValue({ data: users });
+      const result = await userService.getUsers();
+      expect(vi.mocked(axiosInstance.get)).toHaveBeenCalledWith('/users', {
+        headers: undefined,
+      });
+      expect(result).toEqual(users);
     });
   });
 });
