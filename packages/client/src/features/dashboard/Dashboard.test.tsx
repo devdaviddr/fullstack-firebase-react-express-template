@@ -7,7 +7,7 @@ import * as AuthContext from '../auth/AuthContext';
 import * as hooks from '../../api/hooks';
 import type { User } from 'firebase/auth';
 import type { UseQueryResult, UseMutationResult } from '@tanstack/react-query';
-import type { MeResponse } from '../../api/types';
+import type { MeResponse, UserProfile } from '../../api/types';
 
 vi.mock('../../api/hooks', () => ({
   useMe: vi.fn(),
