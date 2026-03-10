@@ -5,6 +5,7 @@ import {
   useState,
   ReactNode,
 } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import {
   User,
   onAuthStateChanged,
@@ -40,8 +41,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithPopup(auth, googleProvider);
   };
 
+  const queryClient = useQueryClient();
+
   const signOut = async () => {
     await firebaseSignOut(auth);
+    // clear any cached server data when user signs out
+    queryClient.clear();
   };
 
   const getIdToken = async (): Promise<string> => {

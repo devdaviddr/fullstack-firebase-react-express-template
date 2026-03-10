@@ -7,6 +7,7 @@ import * as AuthContext from './features/auth/AuthContext';
 const routerProps = { future: { v7_startTransition: true, v7_relativeSplatPath: true } };
 
 describe('Login screen', () => {
+  // wrapping App usage doesn't change these behaviors
   let signInWithGoogle: () => Promise<void>;
 
   beforeEach(() => {
@@ -39,5 +40,27 @@ describe('Login screen', () => {
     );
     await userEvent.click(screen.getByRole('button', { name: /sign in with google/i }));
     expect(signInWithGoogle).toHaveBeenCalledOnce();
+  });
+
+  it('displays an error message when sign-in fails', async () => {
+    const error = new Error('popup closed');
+    signInWithGoogle = vi.fn<() => Promise<void>>().mockRejectedValue(error);
+    vi.spyOn(AuthContext, 'useAuth').mockReturnValue({
+      user: null,
+      loading: false,
+      signInWithGoogle,
+      signOut: vi.fn<() => Promise<void>>().mockResolvedValue(),
+      getIdToken: vi.fn<() => Promise<string>>().mockResolvedValue(''),
+    });
+
+    render(
+      <MemoryRouter {...routerProps}>
+        <Login />
+      </MemoryRouter>
+    );
+
+    await userEvent.click(screen.getByRole('button', { name: /sign in with google/i }));
+    expect(signInWithGoogle).toHaveBeenCalledOnce();
+    expect(await screen.findByText(/popup closed/i)).toBeInTheDocument();
   });
 });

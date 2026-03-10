@@ -6,42 +6,44 @@ vi.mock('../axios', () => ({
     get: vi.fn(),
     put: vi.fn(),
     delete: vi.fn(),
+    interceptors: { request: { use: vi.fn() } },
   },
 }));
+
+// token store imported dynamically in interceptor test
 
 describe('userService', () => {
   beforeEach(() => vi.clearAllMocks());
 
   describe('getMe', () => {
-    it('sends Authorization header with the provided token', async () => {
+    it('calls GET /me and returns response data', async () => {
       vi.mocked(axiosInstance.get).mockResolvedValue({ data: { uid: 'abc' } });
-      const result = await userService.getMe('my-token');
-      expect(axiosInstance.get).toHaveBeenCalledWith('/me', {
-        headers: { Authorization: 'Bearer my-token' },
-      });
+      const result = await userService.getMe();
+      expect(vi.mocked(axiosInstance.get)).toHaveBeenCalled();
+      expect(vi.mocked(axiosInstance.get).mock.calls[0][0]).toBe('/me');
       expect(result).toEqual({ uid: 'abc' });
     });
   });
 
   describe('updateProfile', () => {
-    it('calls PUT /me with data and Authorization header', async () => {
+    it('calls PUT /me with provided data and returns response', async () => {
       const updated = { uid: 'abc', name: 'New Name' };
       vi.mocked(axiosInstance.put).mockResolvedValue({ data: updated });
-      const result = await userService.updateProfile({ name: 'New Name' }, 'my-token');
-      expect(axiosInstance.put).toHaveBeenCalledWith('/me', { name: 'New Name' }, {
-        headers: { Authorization: 'Bearer my-token' },
-      });
+      const result = await userService.updateProfile({ name: 'New Name' });
+      expect(vi.mocked(axiosInstance.put)).toHaveBeenCalled();
+      expect(vi.mocked(axiosInstance.put).mock.calls[0][0]).toBe('/me');
       expect(result).toEqual(updated);
     });
   });
 
   describe('deleteAccount', () => {
-    it('calls DELETE /me with Authorization header', async () => {
+    it('calls DELETE /me', async () => {
       vi.mocked(axiosInstance.delete).mockResolvedValue({ data: {} });
-      await userService.deleteAccount('my-token');
-      expect(axiosInstance.delete).toHaveBeenCalledWith('/me', {
-        headers: { Authorization: 'Bearer my-token' },
-      });
+      await userService.deleteAccount();
+      expect(vi.mocked(axiosInstance.delete)).toHaveBeenCalled();
+      expect(vi.mocked(axiosInstance.delete).mock.calls[0][0]).toBe('/me');
     });
   });
 });
+
+

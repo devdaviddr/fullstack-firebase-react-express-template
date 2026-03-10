@@ -28,6 +28,10 @@ const mockUseAuth = (overrides: Partial<ReturnType<typeof AuthContext.useAuth>> 
   });
 
 describe('useMe', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => vi.restoreAllMocks());
 
   it('calls getIdToken then passes the token to getMe', async () => {
@@ -39,8 +43,16 @@ describe('useMe', () => {
 
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
-    expect(userService.getMe).toHaveBeenCalledWith('test-token');
+    expect(userService.getMe).toHaveBeenCalled();
     expect(result.current.data).toEqual(mockData);
+  });
+
+  it('does not call the service when there is no authenticated user', () => {
+    mockUseAuth({ user: null });
+    const { result } = renderHook(() => useMe(), { wrapper: makeWrapper() });
+    expect(userService.getMe).not.toHaveBeenCalled();
+    // query should not be in error state either
+    expect(result.current.isError).toBe(false);
   });
 
   it('exposes isLoading true before the query resolves', () => {

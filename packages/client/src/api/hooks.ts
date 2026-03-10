@@ -1,55 +1,40 @@
-import { useQuery, useMutation, UseQueryOptions, UseMutationOptions, UseMutationResult } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../features/auth/AuthContext';
 import * as userService from './services/userService';
 import { MeResponse } from './types';
 
-// generic fetch hook
-export function useFetch<TData, TError = Error>(
-  options: UseQueryOptions<TData, TError, TData, readonly unknown[]>,
-) {
-  return useQuery(options);
-}
-
-// generic mutation hook
-export function useMutationHook<TData, TVariables = void, TError = Error>(
-  options: UseMutationOptions<TData, TError, TVariables>,
-): UseMutationResult<TData, TError, TVariables, unknown> {
-  return useMutation(options);
-}
+// helpers have been removed; useQuery/useMutation object form below
 
 export function useMe() {
-  const { getIdToken } = useAuth();
+  const { user } = useAuth();
 
-  return useFetch<MeResponse>({
+  return useQuery<MeResponse>({
     queryKey: ['me'],
-    queryFn: async () => {
-      const token = await getIdToken();
-      const res = await userService.getMe(token);
-      return res;
-    },
+    queryFn: userService.getMe,
+    enabled: !!user,
   });
 }
 
 export function useUpdateProfile() {
-  const { getIdToken } = useAuth();
+  const queryClient = useQueryClient();
 
-  return useMutationHook<MeResponse, Partial<{ name: string; picture: string }>>(
-    {
-      mutationFn: async (vars) => {
-        const token = await getIdToken();
-        return userService.updateProfile(vars, token);
-      },
+  return useMutation<MeResponse, Error, Partial<{ name: string; picture: string }>>({
+    mutationFn: userService.updateProfile,
+    onSuccess(data) {
+      queryClient.setQueryData(['me'], data);
     },
-  );
+  });
 }
 
 export function useDeleteAccount() {
-  const { getIdToken } = useAuth();
+  const queryClient = useQueryClient();
+  const { signOut } = useAuth();
 
-  return useMutationHook<void, void>({
-    mutationFn: async () => {
-      const token = await getIdToken();
-      await userService.deleteAccount(token);
+  return useMutation<void, Error, void>({
+    mutationFn: userService.deleteAccount,
+    onSuccess() {
+      queryClient.removeQueries(['me']);
+      signOut();
     },
   });
 }
